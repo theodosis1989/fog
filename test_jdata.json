@@ -1,0 +1,69 @@
+{
+  "ifttt": {
+    "makers": {
+      "maker": [
+        {
+          "text": "blink",
+          "action": "blink the lamps",
+          "url": "BlinkingLoop"
+        },
+        {
+          "text": "off",
+          "action": "turn the lamps off",
+          "url": "TurnOff"
+        },
+        {
+          "text": "on",
+          "action": "turn the lamps on",
+          "url": "TurnOn"
+        },
+        {
+          "text": "toggle",
+          "action": "toggle the lamps on",
+          "url": "ToggleLights"
+        },
+        {
+          "text": "bri",
+          "action": "dim the lamps",
+          "url": "DimTheLights"
+        },
+        {
+          "text": "color",
+          "action": "change the lamps color",
+          "url": "ChangeColor"
+        },
+        {
+          "text": "randomcolor",
+          "action": "change the lamps color",
+          "url": "ChangeToRandomColor"
+        }
+      ]
+    },
+    "lamps": {
+      "lamp": [
+        {
+          "name": "hue1",
+          "state": "off"
+        },
+        {
+          "name": "hue2",
+          "state": "on"
+        },
+        {
+          "name": "72111",
+          "state": "on"
+        }
+      ]
+    },
+    "cloudbits": {
+      "cloudbit": [
+        {
+        "id": "2485ecvf00",
+        "name": "cloudbits name",
+        "action": "call a url",
+        "url": ""
+        }
+      ] 
+    }
+  }
+}
