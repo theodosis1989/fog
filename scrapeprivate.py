@@ -48,6 +48,17 @@ def checkTokenFile():
 		isReady = True
 	return isReady
 
+def fetchCredentials():
+	print "getCred"
+	f = open("credentials.txt")
+	info = f.readline()
+	print info
+	fileinfo = info.split(":")
+	userName = fileinfo[0]
+	print userName
+	password = fileinfo[1]
+	print password
+	f.close()
 
 #start scraping
 def ScrapeIFTTT():
@@ -58,6 +69,9 @@ def ScrapeIFTTT():
 		fetchToken()
 		print "press bridge button"
 		time.sleep(3)
+
+	fetchCredentials()
+	fillShadowFile()
 
 	#start timer
 	print "Scraping..."

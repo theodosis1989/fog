@@ -4,6 +4,50 @@ import urllib2
 import requests
 import time
 from random import randint
+import os, sys
+
+def UpdateShadow(light, reachable, state):
+	with open("shadow.json", "r") as data_j:
+		mydata = json.load(data_j)
+		# print mydata
+		lampkeys =  mydata.keys()
+		print lampkeys
+		for x in lampkeys:
+			print light
+			if x == str(light):
+				print mydata[x]["name"]
+				mydata[x]["state"]["reachable"] = reachable
+				mydata[x]["state"]["on"] = state
+		data_j.close()
+
+    	with open('shadow_temp.json', 'w') as outfile:
+    		json.dump(mydata, outfile)
+    		outfile.close()
+
+    	os.remove("shadow.json")
+    	os.rename("shadow_temp.json", "shadow.json")
+
+def UpdateShadowB(light, reachable, state, dim):
+	with open("shadow.json", "r") as data_j:
+		mydata = json.load(data_j)
+		# print mydata
+		lampkeys =  mydata.keys()
+		print lampkeys
+		for x in lampkeys:
+			print light
+			if x == str(light):
+				print mydata[x]["name"]
+				mydata[x]["state"]["reachable"] = reachable
+				mydata[x]["state"]["on"] = state
+				mydata[x]["state"]["bri"] = dim
+		data_j.close()
+
+    	with open('shadow_temp.json', 'w') as outfile:
+    		json.dump(mydata, outfile)
+    		outfile.close()
+
+    	os.remove("shadow.json")
+    	os.rename("shadow_temp.json", "shadow.json")
 
 def GetLightNumbers(token, ip):
 	f = urllib2.urlopen("http://" + str(ip) + "/api/" + str(token) + "/lights")
@@ -15,10 +59,11 @@ def TurnOn(light, token, ip):
 	if (light == "all"):
 		lampsNum = GetLightNumbers(token, ip)
 		for ln in range(1, lampsNum+1):
-			print ln
 			requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(ln) + "/state", data=dataOn)
+			UpdateShadow(ln, True, True)
 	else:
 		requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(light) + "/state", data=dataOn)
+		UpdateShadow(ln, True, True)
 	return 0
 
 def TurnOff(light, token, ip):
@@ -27,8 +72,10 @@ def TurnOff(light, token, ip):
 		lampsNum = GetLightNumbers(token, ip)
 		for ln in range(1, lampsNum+1):
 			requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(ln) + "/state", data=dataOff)
+			UpdateShadow(ln, True, False)
 	else:
 		requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(light) + "/state", data=dataOff)
+		UpdateShadow(ln, True, False)
 	return 0
 
 def BlinkingLoop(light, token, ip):
@@ -72,6 +119,12 @@ def SetBrightness(light, percentageValue, token, ip):
 	val = (int(percentageValue)*254)/100
 	dataBri = json.dumps({"on": True, "transitiontime":0, "bri": val})
 	requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(light) + "/state", data=dataBri)
+	UpdateShadowB(light, True, True, val)
+
+def SetBrightnessVal(light, actualValue, token, ip):
+	dataBri = json.dumps({"on": True, "transitiontime":0, "bri": actualValue})
+	requests.put("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(light) + "/state", data=dataBri)
+	UpdateShadowB(light, True, True, actualValue)
 
 def SetColor(light, color, token, ip):
 	dataColor = json.dumps({"on": True, "transitiontime":0, "bri": 254, "hue": color})
