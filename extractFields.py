@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib
 import json
+import fileHandler as fh
 from Classes import Applet
 from Classes import CloudBits
 from Classes import HueLights
@@ -37,7 +38,6 @@ def returnParams(page, splittedLink):
 	prApplet = PrivateApplet()
 	prApplet.url = "https://platform.ifttt.com/maker/theoshuelights/applets/composer/api/query"
 	prApplet.data = data
-
 	return prApplet
 
 
@@ -179,9 +179,7 @@ def extractMakerSettings(page):
 		if(ddcounter == 1):
 			iftttToken = ddpart.text.split("/")
 			# print iftttToken[4]
-			with open("iftttMakerToken.txt", "w") as f:
-				f.write(iftttToken[4])
-				f.close()
+			fh.WriteToText("iftttMakerToken.txt", iftttToken[4])
 		ddcounter+=1
 
 def returnCSRFTokenFromSoup(soup):

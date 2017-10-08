@@ -100,6 +100,18 @@ def GetLightsOnStatus(lights, token, ip):
 	stateOn = fjson["state"]["on"]
 	return stateOn
 
+def GetLightReachableStatus(lights, token, ip):
+	f = urllib2.urlopen("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(lights))
+	fjson = json.loads(f.read())
+	stateReachable = fjson["state"]["reachable"]
+	return stateReachable
+
+def GetLightBrightness(lights, token, ip):
+	file = urllib2.urlopen("http://" + str(ip) + "/api/" + str(token) + "/lights/" + str(lights))
+	filejson = json.loads(file.read())
+	briVal = filejson["state"]["bri"]
+	return briVal
+
 def ToggleLights(lights, token, ip):
 	if (lights == "all"):
 		lampsNum = GetLightNumbers(token, ip)

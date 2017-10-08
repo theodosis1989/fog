@@ -2,6 +2,7 @@ import requests
 import httplib
 import socket
 import json
+import fileHandler as fh
 
 class Bridge:
 
@@ -50,9 +51,10 @@ class Bridge:
 		result_str = result.read()
 		result_strj = json.loads(result_str)
 		# print result_strj[0]["internalipaddress"]
-		with open("huetoken.txt", "w") as internal_ip_file:
-			internal_ip_file.write(result_strj[0]["internalipaddress"] + ":")
-			internal_ip_file.close()
+		fh.WriteToText("huetoken.txt", result_strj[0]["internalipaddress"] + ":")
+		# with open("huetoken.txt", "w") as internal_ip_file:
+		# 	internal_ip_file.write(result_strj[0]["internalipaddress"] + ":")
+		# 	internal_ip_file.close()
 		return result_strj[0]["internalipaddress"]
 
 	# find bridge token

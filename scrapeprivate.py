@@ -17,6 +17,7 @@ from Classes import CloudBits
 from Classes import HueLights
 import extractFields as ef
 import createFile as cf
+import fileHandler as fh
 # from Classes import Execution
 sizetotal = 0
 start_time = None
@@ -26,10 +27,6 @@ def mechanizeRequest(br, url):
 	page = None
 	try:
 		page = br.open(url).read()
-		datasize = len(page)
-		global sizetotal
-		sizetotal += datasize
-		# print sizetotal
 	except (mechanize.HTTPError, mechanize.URLError):
 		print ("Error, trying again...")
 		ScrapeIFTTT()
@@ -41,24 +38,32 @@ def fetchToken():
 	gt.Bridge()
 
 def checkTokenFile():
-	f = open("huetoken.txt")
-	info = f.readline()
+	info = fh.ReadFromText("huetoken.txt")
 	isReady = False
 	if not(("link button not pressed" in info) or (os.stat("huetoken.txt").st_size < 3)):
 		isReady = True
 	return isReady
 
 def fetchCredentials():
-	print "getCred"
-	f = open("credentials.txt")
-	info = f.readline()
+	info = fh.ReadFromText("credentials.txt")
 	print info
 	fileinfo = info.split(":")
 	userName = fileinfo[0]
 	print userName
 	password = fileinfo[1]
 	print password
-	f.close()
+
+def fetchBridgeInfo():
+	info = fh.ReadFromText("huetoken.txt")
+	return info
+
+def fillShadowFile(ip, token):
+	if (os.stat("shadow.json").st_size < 3):
+		with open("shadow.json", "w") as data_j:
+			f = urllib2.urlopen("http://" + str(ip) + "/api/" + str(token) + "/lights")
+			filejson = json.loads(f.read())
+			json.dump(filejson, data_j)
+
 
 #start scraping
 def ScrapeIFTTT():
@@ -70,8 +75,9 @@ def ScrapeIFTTT():
 		print "press bridge button"
 		time.sleep(3)
 
-	fetchCredentials()
-	fillShadowFile()
+	info = fetchBridgeInfo()
+	fileinfo = info.split(":")
+	fillShadowFile(fileinfo[0], fileinfo[1])
 
 	#start timer
 	print "Scraping..."

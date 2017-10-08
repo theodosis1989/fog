@@ -10,6 +10,7 @@ import datetime
 import sqlite3
 import json
 import urlactions as ua
+import fileHandler as fh
 # from phue import Bridge
 
 mydata = None
@@ -22,11 +23,10 @@ with open("jsondata.json") as data_j:
 	mydata = json.load(data_j)
 
 # get the hue token and internal ip
-with open("huetoken.txt") as f:
-	info = f.readline()
-	fileinfo = info.split(":")
-	internalIP = fileinfo[0]
-	token = fileinfo[1]
+info = fh.ReadFromText("huetoken.txt")
+fileinfo = info.split(":")
+internalIP = fileinfo[0]
+token = fileinfo[1]
 
 # not used at the moment
 def stopfilterbutton(self):

@@ -1,6 +1,6 @@
 import json
 import web
-# import urlactions as ua
+import fileHandler as fh
 import urlactions as ua
 import makersniffer as ms
 
@@ -13,12 +13,10 @@ with open("jsondata.json") as data_j:
 	mydata = json.load(data_j)
 	data_j.close()
 
-with open("huetoken.txt") as f:
-	info = f.readline()
-	fileinfo = info.split(":")
-	internalIP = fileinfo[0]
-	token = fileinfo[1]
-	f.close()
+info = fh.ReadFromText("huetoken.txt")
+fileinfo = info.split(":")
+internalIP = fileinfo[0]
+token = fileinfo[1]
 
 # get the maker token
 with open("iftttMakerToken.txt") as mf:
@@ -36,11 +34,6 @@ urls = (
 
 app = web.application(urls, globals())
 
-# list makers
-# class list_makers:        
-# 	def GET(self):
-# 		return mydata["public"]["makers"]
-
 # run maker functions
 class maker_action_two_args:
 	def GET(self, funcname):
@@ -53,7 +46,7 @@ class maker_action_two_args:
 					method_name = getattr(ua, x["url"])
 					result = method_name(x["value1"], x["value2"], token, internalIP)
 				return result
-		# name does not exist, looks at makers to makers
+		# name does not exist in maker to hue, looks at makers to makers
 		url = "https://maker.ifttt.com/trigger/" + str(funcname) + "/with/key/" + str(makerToken)
 		print url
 		return ms.sniff_maker_requests(url)
