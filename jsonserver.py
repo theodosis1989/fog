@@ -3,6 +3,9 @@ import web
 import fileHandler as fh
 import urlactions as ua
 import makersniffer as ms
+import workers as wk
+import threading
+import datetime
 
 mydata = None
 token = None
@@ -27,7 +30,6 @@ urls = (
 	'/public/makers', 'list_makers',
 	'/public/cloudbits', 'list_cloudbits',
 	'/public/makers/(.*)', 'maker_action_two_args',
-	'/public/makersextra/(.*)/(.*)/(.*)', 'maker_action_three_args',
 	'/public/appletbylamp/(.*)', 'get_applet_by_lamp',
 	'/public/appletbycloudbit/(.*)', 'get_applet_by_cloudbit'
 )
@@ -36,33 +38,36 @@ app = web.application(urls, globals())
 
 # run maker functions
 class maker_action_two_args:
+
 	def GET(self, funcname):
 		for x in mydata["public"]["makers"]["maker"]:
 			if x["text"] == funcname:
-				if not x.has_key("value2"):
-					method_name = getattr(ua, x["url"])
-					result = method_name(x["value1"], token, internalIP)
+				lock = threading.Lock()
+				method_name = getattr(ua, x["url"])
+				if x["value1"] == 'all':
+					# start threads, one for each lamp
+					numberOfLamps = ua.GetLightNumbers(token, internalIP)
+					extraValue = x["value2"] if x.has_key("value2") else  None
+					threads = []
+					for i in range(1, numberOfLamps+1):
+						t = threading.Thread(target=wk.Worker_Lock, args=(i, token, internalIP, lock, x["url"], extraValue, method_name))
+						threads.append(t)
+						t.start()
+					for th in threads:
+						th.join()
+					result = 0
 				else:
-					method_name = getattr(ua, x["url"])
-					result = method_name(x["value1"], x["value2"], token, internalIP)
+					# do it for this one lamp
+					extraValue = x["value2"] if x.has_key("value2") else  None
+					wk.Worker_Lock(x["value1"], token, internalIP, lock, x["url"], extraValue, method_name)
+					result = 0
 				return result
 		# name does not exist in maker to hue, looks at makers to makers
 		url = "https://maker.ifttt.com/trigger/" + str(funcname) + "/with/key/" + str(makerToken)
-		print url
 		return ms.sniff_maker_requests(url)
 
-
-# not used
-class maker_action_three_args:
-	def GET(self, funcname, arg1, arg2):
-		for x in mydata["public"]["makers"]["maker"]:
-			if x["text"] == funcname:
-				method_name = getattr(ua, x["url"])
-				result = method_name(arg1, arg2)
-				return result
-
 # list the lamps
-class list_lamps:        
+class list_lamps:
 	def GET(self):
 		lamps = []
 		for timerlamp in mydata["public"]["timers"]["timer"]:
